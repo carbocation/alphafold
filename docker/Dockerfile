@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG CUDA=11.0
+ARG CUDA=11.1
 FROM nvidia/cuda:${CUDA}-base
 # FROM directive resets ARGS, so we specify again (the value is retained if
 # previously set).
@@ -48,15 +48,17 @@ RUN wget -q -P /tmp \
     && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
     && rm /tmp/Miniconda3-latest-Linux-x86_64.sh
 
-# From https://github.com/deepmind/alphafold/issues/11#issuecomment-881729799 , with 
-# the exception that I kept the CUDA version to 11.0 (and libcusolver-11-0)
+# From https://github.com/deepmind/alphafold/issues/11#issuecomment-881729799 .
+# Initially tried libcusolver-11-0 etc, but TF requires 11.1 so this did not
+# work. See
+# https://github.com/deepmind/alphafold/pull/28/commits/81be3589b05d948813550fcedb01f098d589fff6
 ARG OS=ubuntu2004
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/${OS}/x86_64/cuda-${OS}.pin && \
   mv cuda-${OS}.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
   apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/${OS}/x86_64/7fa2af80.pub && \
   add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/${OS}/x86_64/ /" && \
   apt-get update && \
-  DEBIAN_FRONTEND=noninteractive apt-get install -y libcudnn8 libcudnn8-dev libcusolver-11-0 libcusolver-dev-11-0 && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y libcudnn8 libcudnn8-dev libcusolver-11-1 libcusolver-dev-11-1 && \
   rm -rf /var/lib/apt/lists/*
 
 # Install conda packages.
