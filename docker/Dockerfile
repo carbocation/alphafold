@@ -66,7 +66,7 @@ ENV PATH="/opt/conda/bin:$PATH"
 RUN conda update -qy conda \
     && conda install -y -c conda-forge \
       openmm=7.5.1 \
-      cudatoolkit==${CUDA}.3 \
+      cudatoolkit==${CUDA}.1 \
       pdbfixer \
       pip
 
