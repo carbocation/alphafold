@@ -29,6 +29,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
       hmmer \
       kalign \
       tzdata \
+      software-properties-common \
       wget \
     && rm -rf /var/lib/apt/lists/*
 
@@ -46,6 +47,17 @@ RUN wget -q -P /tmp \
   https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
     && bash /tmp/Miniconda3-latest-Linux-x86_64.sh -b -p /opt/conda \
     && rm /tmp/Miniconda3-latest-Linux-x86_64.sh
+
+# From https://github.com/deepmind/alphafold/issues/11#issuecomment-881729799 , with 
+# the exception that I kept the CUDA version to 11.0 (and libcusolver-11-0)
+ARG OS=ubuntu2004
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/${OS}/x86_64/cuda-${OS}.pin && \
+  mv cuda-${OS}.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
+  apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/${OS}/x86_64/7fa2af80.pub && \
+  add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/${OS}/x86_64/ /" && \
+  apt-get update && \
+  DEBIAN_FRONTEND=noninteractive apt-get install -y libcudnn8 libcudnn8-dev libcusolver-11-0 libcusolver-dev-11-0 && \
+  rm -rf /var/lib/apt/lists/*
 
 # Install conda packages.
 ENV PATH="/opt/conda/bin:$PATH"
